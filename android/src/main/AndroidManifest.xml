@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="net.granoeste.flutterlinelogin">
+    <application>
+        <meta-data android:name="line.channelId"
+            android:value="@string/line_channel_id" />
+    </application>
+</manifest>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Replace "0000000000" with your LINE Channel ID here. -->
+    <string name="line_channel_id">0000000000</string>
+
+</resources>

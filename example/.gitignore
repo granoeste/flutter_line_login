@@ -3,9 +3,7 @@
 
 .packages
 .pub/
-pubspec.lock
 
 build/
 
-.idea
-ios/.generated/
+.flutter-plugins
