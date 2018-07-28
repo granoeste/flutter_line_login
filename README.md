@@ -1,5 +1,7 @@
 # flutter_line_login
 
+[![pub package](https://img.shields.io/pub/v/flutter_line_login.svg)](https://pub.dartlang.org/packages/flutter_line_login)
+
 A Flutter plugin for allowing users to authenticate with native Android & iOS LINE login SDKs.
 
 ## Getting Started
@@ -21,7 +23,7 @@ Simple code for LINE login:
 
 ```
 
-For more detailed code you need to see an [example](https://github.com/granoeste/flutter_line_login/tree/master/example).
+For more detailed code you need to see an [example](https://github.com/granoeste/flutter_line_login/tree/master/example).
 
 ## Installation
 

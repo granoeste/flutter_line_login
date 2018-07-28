@@ -27,16 +27,6 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _login() {
-    _flutterLineLogin.startWebLogin(
-            (data) => {
-              // LoginSuccess
-            },
-            (error) => {
-              // LoginError
-            });
-  }
-
   void _onLoginSuccess(Object data) {
     message = 'LoginSuccess: ${data}.';
   }
