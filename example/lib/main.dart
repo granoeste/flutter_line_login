@@ -27,7 +27,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void login() {
+  void _login() {
     _flutterLineLogin.startWebLogin(
             (data) => {
               // LoginSuccess
@@ -64,16 +64,16 @@ class _MyAppState extends State<MyApp> {
 
   Future<Null> _getProfile() async {
     try {
-      var result = await _flutterLineLogin.getProfile();
-      message = 'Profile: ${result}.';
+      var profile = await _flutterLineLogin.getProfile();
+      message = 'Profile: ${profile}.';
     } on PlatformException catch (e) {
       message = 'Profile: ${e}.';
     }
   }
 
   Future<Null> _currentAccessToken() async {
-    var result = await _flutterLineLogin.currentAccessToken();
-    message = 'CurrentAccessToken: ${result}.';
+    var accessToken = await _flutterLineLogin.currentAccessToken();
+    message = 'CurrentAccessToken: ${accessToken}.';
   }
 
   Future<Null> _verifyToken() async {

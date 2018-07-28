@@ -88,3 +88,144 @@ Next, Set your channel ID in your application’s Info.plist as follows. Make su
 ```
 
 Done!
+
+## Usage 
+### Login
+
+Begins the login process. If the LINE app is installed, the SDK defaults to using app-to-app authentication. If it is not installed, the SDK logs in using a web.
+The login result for LINE app is got by a callback function.
+
+```dart
+  // Begins the login process.
+  await _flutterLineLogin.startLogin(_onLoginSuccess, _onLoginError);
+
+  /// Success callback for LINE login result.
+  ///
+  /// The data is the map resulting from successful login with LINE login.
+  ///
+  /// Attributes from LineProfile & LineCredential
+  ///
+  /// * userID - The user's user ID.
+  /// * displayName - The user’s display name.
+  /// * pictureUrl - The user’s profile media URL.
+  /// * statusMessage - The user’s status message.
+  /// * accessToken - User access token.
+  /// * expiresIn - The amount of time in milliseconds until the user access token expires.
+  /// * permissions - The set of permissions that the access token holds. The following is a list of the permission codes.
+  void _onLoginSuccess(Object data) {
+    debugPrint("userID:${profile['userID']}");
+    debugPrint("displayName:${profile['displayName']}");
+    debugPrint("pictureUrl:${profile['pictureUrl']}");
+    debugPrint("statusMessage:${profile['statusMessage']}");
+    debugPrint("accessToken: ${result['accessToken']}.");
+    debugPrint("expiresIn: ${result['expiresIn']}.");
+  }
+
+  /// Error callback for LINE login result.
+  ///
+  /// The error is the PlatformException resulting of failing login with LINE login.
+  /// Attributes differs between Android and iOS.
+  void _onLoginError(Object error) {
+    debugPrint("PlatformException: ${error}");
+  }
+```
+
+### Login with web
+
+Begins the login process. This function uses a Web to log in, not app-to-app authentication.
+
+```dart
+  await _flutterLineLogin.startWebLogin(_onLoginSuccess, _onLoginError);
+```
+
+The login result is obtained by a callback function. It's same Login.
+
+### Logout
+
+Revokes the user access token.
+If access token is null, PlatformException is throwed.
+
+```dart
+  // Platform messages may fail, so we use a try/catch PlatformException.
+  try {
+    await _flutterLineLogin.logout();
+    debugPrint("Logout success.");
+  } on PlatformException catch (e) {
+    debugPrint("PlatformException: ${e}");
+  }
+```
+
+### Profile
+
+Gets the profile information of the user.
+If access token is null, PlatformException is throwed.
+
+```dart
+  // Platform messages may fail, so we use a try/catch PlatformException.
+  try {
+    var profile = await _flutterLineLogin.getProfile();
+    debugPrint("userID:${profile['userID']}");
+    debugPrint("displayName:${profile['displayName']}");
+    debugPrint("pictureUrl:${profile['pictureUrl']}");
+    debugPrint("statusMessage:${profile['statusMessage']}");
+  } on PlatformException catch (e) {
+    debugPrint("PlatformException: ${e}");
+  }
+```
+
+### Access Token
+
+Gets the access token for the user.
+If access token is null, PlatformException is throwed.
+
+```dart
+  // Platform messages may fail, so we use a try/catch PlatformException.
+  try {
+    var result = await _flutterLineLogin.currentAccessToken();
+    debugPrint("accessToken: ${result['accessToken']}.");
+    debugPrint("expiresIn: ${result['expiresIn']}.");
+  } on PlatformException catch (e) {
+    debugPrint("PlatformException: ${e}");
+  }
+```
+
+### Verify token
+
+Checks whether the access token for the user is valid.
+If access token is null, PlatformException is throwed.
+
+```dart
+  // Platform messages may fail, so we use a try/catch PlatformException.
+  try {
+    var result = await _flutterLineLogin.verifyToken();
+    // Return null only. That means it is successful.
+    debugPrint("VerifyToken: ${result == null}.");
+  } on PlatformException catch (e) {
+    debugPrint("PlatformException: ${e}");
+  }
+```
+
+### Refresh token
+
+Refreshes the access token for the user.
+If access token is null, PlatformException is throwed.
+
+```dart
+  // Platform messages may fail, so we use a try/catch PlatformException.
+  try {
+    var result = await _flutterLineLogin.verifyToken();
+    debugPrint("accessToken: ${result['accessToken']}.");
+    debugPrint("expiresIn: ${result['expiresIn']}.");
+  } on PlatformException catch (e) {
+    debugPrint("PlatformException: ${e}");
+  }
+```
+
+**LINE SDK has API difference between Android and iOS.**
+So, I did not create all Naive API calling functions.
+To learn more, you need to look at the [Android SDK reference](https://developers.line.me/en/reference/android-sdk/) and [iOS SDK reference](https://developers.line.me/en/reference/ios-sdk/) of LINE documentation.
+
+
+If you find a bug please register issue or Pull Requeste.
+
+Thank you and best regards,
