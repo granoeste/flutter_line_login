@@ -1,3 +1,9 @@
+## 0.1.2
+
+* Add Pub Icon in README.md
+* Add dart analysis options difines
+* Fix a small code
+ 
 ## 0.1.1
 
 * Add Usage in README.md
