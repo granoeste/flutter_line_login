@@ -51,6 +51,12 @@ Next, copy and paste the following into the string resource file.
 </resources>
 ```
 
+When the following error occurs at the time of build, it is necessary to make the version of Support Library the same. flutter_line_login dependencies `com.android.support: customtabs: 27.1.1`.
+
+```
+Caused by: java.lang.RuntimeException: Android dependency 'com.android.support:support-core-utils' has different version for the compile (26.1.0) and runtime (27.1.1) classpath. You should manually set the same version via DependencyResolution
+```
+
 Done!
 
 ### iOS
@@ -115,12 +121,12 @@ The login result for LINE app is got by a callback function.
   /// * expiresIn - The amount of time in milliseconds until the user access token expires.
   /// * permissions - The set of permissions that the access token holds. The following is a list of the permission codes.
   void _onLoginSuccess(Object data) {
-    debugPrint("userID:${profile['userID']}");
-    debugPrint("displayName:${profile['displayName']}");
-    debugPrint("pictureUrl:${profile['pictureUrl']}");
-    debugPrint("statusMessage:${profile['statusMessage']}");
-    debugPrint("accessToken: ${result['accessToken']}.");
-    debugPrint("expiresIn: ${result['expiresIn']}.");
+    debugPrint("userID:${data['userID']}");
+    debugPrint("displayName:${data['displayName']}");
+    debugPrint("pictureUrl:${data['pictureUrl']}");
+    debugPrint("statusMessage:${data['statusMessage']}");
+    debugPrint("accessToken: ${data['accessToken']}.");
+    debugPrint("expiresIn: ${data['expiresIn']}.");
   }
 
   /// Error callback for LINE login result.
