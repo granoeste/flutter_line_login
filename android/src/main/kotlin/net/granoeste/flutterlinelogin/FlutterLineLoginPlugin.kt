@@ -26,7 +26,7 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
 
     private val METHOD_CHANNEL = "net.granoeste/flutter_line_login"
     private val EVENT_CHANNEL = "net.granoeste/flutter_line_login_result"
-    private val REQUEST_CODE = 1
+    private var requestCode = 20000904
 
     companion object {
         val TAG: String = FlutterLineLoginPlugin::class.java.simpleName
@@ -51,7 +51,7 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
         lineApiClient = LineApiClientBuilder(registrar.activeContext(), channelId).build()
    }
 
-    fun loadChannelIdFromMetadata(context: Context) {
+    private fun loadChannelIdFromMetadata(context: Context) {
         var ai: ApplicationInfo? = null
         try {
             ai = context.packageManager.getApplicationInfo(
@@ -68,6 +68,12 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
         if (id is String) {
             channelId = id
         }
+
+        val code = ai.metaData.get("line.request_code_login")
+        if (code is Int) {
+            requestCode = code
+        }
+
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -75,13 +81,13 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
             "startLogin" -> {
                 if(BuildConfig.DEBUG) Log.d(TAG, "Method:startLogin")
                 val loginIntent = LineLoginApi.getLoginIntent(activity, channelId)
-                activity.startActivityForResult(loginIntent, REQUEST_CODE)
+                activity.startActivityForResult(loginIntent, requestCode)
                 result.success(null)
             }
             "startWebLogin" -> {
                 if(BuildConfig.DEBUG) Log.d(TAG, "Method:startWebLogin")
                 val loginIntent = LineLoginApi.getLoginIntentWithoutLineAppAuth(activity, channelId)
-                activity.startActivityForResult(loginIntent, REQUEST_CODE)
+                activity.startActivityForResult(loginIntent, requestCode)
                 result.success(null)
             }
             "logout" -> {
@@ -195,10 +201,9 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         if(BuildConfig.DEBUG) Log.d(TAG, "onActivityResult")
-        if (requestCode != REQUEST_CODE) {
-            Log.e(TAG, "Unsupported Request")
-            eventSink.error("ERROR", "Unsupported Request", null)
-            return true
+        if (requestCode != this.requestCode) {
+            if(BuildConfig.DEBUG) Log.d(TAG, "Unsupported Request")
+            return false
         }
 
         val result = LineLoginApi.getLoginResultFromIntent(data)
@@ -223,16 +228,12 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
                 }
 
                 eventSink.success(map)
+                return true
             }
             else -> {
-                Log.w(TAG, result.errorData.toString())
-                eventSink.error(result.responseCode.toString(),
-                        result.errorData.message,
-                        result.errorData.toString())
+                return false
             }
         }
-
-        return true
     }
 
 }

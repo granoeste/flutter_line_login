@@ -51,6 +51,17 @@ Next, copy and paste the following into the string resource file.
 </resources>
 ```
 
+If you want change requestCode of startActivityForResult when Line login, add below  integer resource.
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Replace "20000904" with requestCode in your app. -->
+    <integer name="request_code_login">20000904</integer>
+</resources>
+```
+
+
 When the following error occurs at the time of build, it is necessary to make the version of Support Library the same. flutter_line_login dependencies `com.android.support: customtabs: 27.1.1`.
 
 ```

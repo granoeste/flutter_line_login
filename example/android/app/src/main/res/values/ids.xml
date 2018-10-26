@@ -2,5 +2,7 @@
 <resources>
     <!-- Replace "0000000000" with your LINE Channel ID here. -->
     <string name="line_channel_id">0000000000</string>
+    <!-- Replace "20000904" with requestCode in your app. -->
+    <integer name="request_code_login">20000904</integer>
 
 </resources>

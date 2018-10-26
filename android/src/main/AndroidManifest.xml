@@ -3,5 +3,7 @@
     <application>
         <meta-data android:name="line.channelId"
             android:value="@string/line_channel_id" />
+        <meta-data android:name="line.request_code_login"
+            android:value="@integer/request_code_login" />
     </application>
 </manifest>

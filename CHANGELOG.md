@@ -1,3 +1,8 @@
+## 0.1.4
+
+* Fix a login result code on Android
+* Add changeable requestCode of startActivityForResult
+
 ## 0.1.3
 
 * Modify README.md

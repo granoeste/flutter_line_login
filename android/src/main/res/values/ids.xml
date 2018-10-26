@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="line_channel_id">0000000000</string>
+    <integer name="request_code_login">20000904</integer>
 </resources>
