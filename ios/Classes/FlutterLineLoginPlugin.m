@@ -1,27 +1,24 @@
 #import "FlutterLineLoginPlugin.h"
 #import <LineSDK/LineSDK.h>
 
+@interface FlutterLineLoginPlugin ()
+@property(nonatomic, retain) FlutterMethodChannel *channel;
+@end
+
 @implementation FlutterLineLoginPlugin {
     LineSDKAPI *apiClient;
 }
 
 + (void)registerWithRegistrar:(NSObject <FlutterPluginRegistrar> *)registrar {
-
-    FlutterMethodChannel *methodChannel =
+    FlutterMethodChannel *channel =
             [FlutterMethodChannel methodChannelWithName:@"net.granoeste/flutter_line_login"
                                         binaryMessenger:[registrar messenger]];
-    FlutterEventChannel *eventChannel =
-            [FlutterEventChannel eventChannelWithName:@"net.granoeste/flutter_line_login_result"
-                                      binaryMessenger:[registrar messenger]];
-
     FlutterLineLoginPlugin *instance = [[FlutterLineLoginPlugin alloc] init];
+    instance.channel = channel;
+    [registrar addMethodCallDelegate:instance channel:channel];
 
     [registrar addApplicationDelegate:instance];
-    [registrar addMethodCallDelegate:instance channel:methodChannel];
-    [eventChannel setStreamHandler:instance];
 }
-
-FlutterEventSink _eventSink;
 
 - (instancetype)init {
     apiClient = [[LineSDKAPI alloc] initWithConfiguration:[LineSDKConfiguration defaultConfig]];
@@ -161,9 +158,12 @@ FlutterEventSink _eventSink;
 
     if (error) {
         NSLog(@"LINE Login Failed with Error: %@", error.description);
-        _eventSink([FlutterError errorWithCode:[NSString stringWithFormat:@"%ld", error.code]
-                                       message:error.domain
-                                       details:error.localizedDescription]);
+        [self.channel invokeMethod:@"loginFailed"
+                         arguments:@{
+                                     @"code" : [NSString stringWithFormat:@"%ld", error.code],
+                                     @"description" : error.localizedDescription,
+                                     @"domain" : error.domain,
+                                     }];
         return;
     }
 
@@ -188,20 +188,7 @@ FlutterEventSink _eventSink;
         result[@"statusMessage"] = profile.statusMessage;
     }
 
-    _eventSink(result);
-}
-
-// ---------------------------------------------
-// MARK: - StreamHandler for FlutterEventChannel
-// ---------------------------------------------
-- (FlutterError *)onListenWithArguments:(id)arguments eventSink:(FlutterEventSink)eventSink {
-    _eventSink = eventSink;
-    return nil;
-}
-
-- (FlutterError *)onCancelWithArguments:(id)arguments {
-    _eventSink = nil;
-    return nil;
+    [self.channel invokeMethod:@"loginSuccess" arguments:result];
 }
 
 @end

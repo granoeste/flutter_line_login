@@ -25,10 +25,10 @@ import android.content.pm.ApplicationInfo
 import com.linecorp.linesdk.Scope
 
 
-class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventChannel.StreamHandler, PluginRegistry.ActivityResultListener {
+class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, PluginRegistry.ActivityResultListener {
 
     private val METHOD_CHANNEL = "net.granoeste/flutter_line_login"
-    private val EVENT_CHANNEL = "net.granoeste/flutter_line_login_result"
+    private val channel: MethodChannel
     private var requestCode = 20000904
 
     companion object {
@@ -40,15 +40,14 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
         }
     }
 
-    private lateinit var eventSink: EventChannel.EventSink
     private val activity: Activity = registrar.activity()
     private var lineApiClient: LineApiClient
     private var lineAuthenticationParams: LineAuthenticationParams
     private var channelId = ""
 
     init {
-        MethodChannel(registrar.messenger(), METHOD_CHANNEL).setMethodCallHandler(this)
-        EventChannel(registrar.messenger(), EVENT_CHANNEL).setStreamHandler(this)
+        channel = MethodChannel(registrar.messenger(), METHOD_CHANNEL)
+        channel.setMethodCallHandler(this)
         registrar.addActivityResultListener(this)
 
         loadChannelIdFromMetadata(registrar.activeContext())
@@ -205,15 +204,6 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
         }
     }
 
-    override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
-        if (BuildConfig.DEBUG) Log.d(TAG, "onListen$events")
-        eventSink = events
-    }
-
-    override fun onCancel(arguments: Any?) {
-        if (BuildConfig.DEBUG) Log.d(TAG, "onCancel")
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         if (BuildConfig.DEBUG) Log.d(TAG, "onActivityResult")
         if (requestCode != this.requestCode) {
@@ -222,6 +212,7 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
         }
 
         val result = LineLoginApi.getLoginResultFromIntent(data)
+        if (BuildConfig.DEBUG) Log.d(TAG, "LineLoginResult:$result")
 
         when (result.responseCode) {
 
@@ -233,9 +224,6 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
                         "displayName" to result.lineProfile?.displayName,
                         "accessToken" to result.lineCredential?.accessToken?.tokenString,
                         "expiresIn" to result.lineCredential?.accessToken?.expiresInMillis.toString(), // Compatibility
-                        "expiresInMillis" to result.lineCredential?.accessToken?.expiresInMillis.toString(),
-                        "estimatedExpirationTimeMillis" to result.lineCredential?.accessToken?.estimatedExpirationTimeMillis.toString(),
-                        "issuedClientTimeMillis" to result.lineCredential?.accessToken?.issuedClientTimeMillis.toString(),
                         "permissions" to result.lineCredential?.scopes?.map { it.code }?.toList()
                 )
                 if (result.lineProfile?.pictureUrl != null) {
@@ -245,10 +233,16 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
                     map["statusMessage"] = result.lineProfile?.statusMessage
                 }
 
-                eventSink.success(map)
+                channel.invokeMethod("loginSuccess", map);
                 return true
             }
             else -> {
+                Log.w(TAG, "LINE Login Failed with Error: ${result.responseCode},${result.errorData.message}")
+
+                channel.invokeMethod("loginFailed", mapOf(
+                        "responseCode" to result.responseCode.toString(),
+                        "message" to result.errorData.message
+                ))
                 return false
             }
         }

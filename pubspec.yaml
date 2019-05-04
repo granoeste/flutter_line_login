@@ -1,6 +1,6 @@
 name: flutter_line_login
 description: A Flutter plugin for allowing users to authenticate with native Android & iOS LINE login SDKs.
-version: 0.1.4
+version: 0.2.0
 author: Katsumi Onishi <granoeste@gmail.com>
 homepage: https://github.com/granoeste/flutter_line_login
 
