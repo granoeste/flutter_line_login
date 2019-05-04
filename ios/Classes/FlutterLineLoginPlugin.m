@@ -51,13 +51,15 @@ FlutterEventSink _eventSink;
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
     if ([@"startLogin" isEqualToString:call.method]) {
         NSLog(@"Method:startLogin");
-        [[LineSDKLogin sharedInstance] startLogin];
+        NSArray *permissions = @[@"profile", @"openid", @"email"];
+        [[LineSDKLogin sharedInstance] startLoginWithPermissions:permissions];
         result(nil);
 
 
     } else if ([@"startWebLogin" isEqualToString:call.method]) {
         NSLog(@"Method:startWebLogin");
-        [[LineSDKLogin sharedInstance] startWebLogin];
+        NSArray *permissions = @[@"profile", @"openid", @"email"];
+        [[LineSDKLogin sharedInstance] startWebLoginWithPermissions:permissions];
         result(nil);
 
     } else if ([@"logout" isEqualToString:call.method]) {

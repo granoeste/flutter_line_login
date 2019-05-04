@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_line_login'
-  s.version          = '0.0.1'
+  s.version          = '0.2.0'
   s.summary          = 'A Flutter LINE login plugin.'
   s.description      = <<-DESC
 A Flutter LINE login plugin.
@@ -13,10 +13,11 @@ A Flutter LINE login plugin.
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
+  s.static_framework = true
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'LineSDK', '~> 4.1.0'
-  
-  s.ios.deployment_target = '8.0'
+  s.dependency 'LineSDK', '~> 5.0'
+
+  s.ios.deployment_target = '9.0'
 end
 

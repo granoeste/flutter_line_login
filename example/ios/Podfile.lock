@@ -1,9 +1,9 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_line_login (0.0.1):
+  - flutter_line_login (0.2.0):
     - Flutter
-    - LineSDK (~> 4.1.0)
-  - LineSDK (4.1.1)
+    - LineSDK (~> 5.0)
+  - LineSDK (5.0.0)
 
 DEPENDENCIES:
   - Flutter (from `.symlinks/flutter/ios`)
@@ -21,9 +21,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
-  flutter_line_login: fa600b1be3a4d9f5c0705f60bf0acfae18279c0f
-  LineSDK: 4d0a483f5435e911911810476717417669b5b178
+  flutter_line_login: 3d17283416622597280b3eec09a20ef5975dcd2e
+  LineSDK: b086f6943d5bb2c05f9bc829323ad574dbedf284
 
-PODFILE CHECKSUM: 1e5af4103afd21ca5ead147d7b81d06f494f51a2
+PODFILE CHECKSUM: 348e15598a1c6ea25d3ed63919d5ffb9bd1c2ba6
 
-COCOAPODS: 1.5.2
+COCOAPODS: 1.5.3
