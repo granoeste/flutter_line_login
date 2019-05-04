@@ -8,6 +8,7 @@ import com.linecorp.linesdk.LineApiResponseCode
 import com.linecorp.linesdk.api.LineApiClient
 import com.linecorp.linesdk.api.LineApiClientBuilder
 import com.linecorp.linesdk.auth.LineLoginApi
+import com.linecorp.linesdk.auth.LineAuthenticationParams
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -15,11 +16,13 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import android.content.pm.PackageManager
 import android.content.pm.ApplicationInfo
+import com.linecorp.linesdk.Scope
 
 
 class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventChannel.StreamHandler, PluginRegistry.ActivityResultListener {
@@ -32,15 +35,16 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
         val TAG: String = FlutterLineLoginPlugin::class.java.simpleName
 
         @JvmStatic
-        fun registerWith(registrar: Registrar): Unit {
+        fun registerWith(registrar: Registrar) {
             FlutterLineLoginPlugin(registrar)
         }
     }
 
     private lateinit var eventSink: EventChannel.EventSink
     private val activity: Activity = registrar.activity()
-    private var lineApiClient: LineApiClient;
-    private var channelId = "";
+    private var lineApiClient: LineApiClient
+    private var lineAuthenticationParams: LineAuthenticationParams
+    private var channelId = ""
 
     init {
         MethodChannel(registrar.messenger(), METHOD_CHANNEL).setMethodCallHandler(this)
@@ -49,7 +53,18 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
 
         loadChannelIdFromMetadata(registrar.activeContext())
         lineApiClient = LineApiClientBuilder(registrar.activeContext(), channelId).build()
-   }
+
+        /*
+         * Represents a scope. A scope is a permission that the user grants your app during the login process.
+         *
+         * Scope.OC_EMAIL - Permission to get the user's email address.
+         * Scope.OPENID_CONNECT - Permission to get an ID token that includes the user information.
+         * Scope.PROFILE - Permission to get the user's profile information.
+        */
+        lineAuthenticationParams = LineAuthenticationParams.Builder()
+                .scopes(listOf(Scope.OC_EMAIL, Scope.OPENID_CONNECT, Scope.PROFILE))
+                .build()
+    }
 
     private fun loadChannelIdFromMetadata(context: Context) {
         var ai: ApplicationInfo? = null
@@ -79,21 +94,21 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "startLogin" -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "Method:startLogin")
-                val loginIntent = LineLoginApi.getLoginIntent(activity, channelId)
+                if (BuildConfig.DEBUG) Log.d(TAG, "Method:startLogin")
+                val loginIntent = LineLoginApi.getLoginIntent(activity, channelId, lineAuthenticationParams)
                 activity.startActivityForResult(loginIntent, requestCode)
                 result.success(null)
             }
             "startWebLogin" -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "Method:startWebLogin")
-                val loginIntent = LineLoginApi.getLoginIntentWithoutLineAppAuth(activity, channelId)
+                if (BuildConfig.DEBUG) Log.d(TAG, "Method:startWebLogin")
+                val loginIntent = LineLoginApi.getLoginIntentWithoutLineAppAuth(activity, channelId, lineAuthenticationParams)
                 activity.startActivityForResult(loginIntent, requestCode)
                 result.success(null)
             }
             "logout" -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "Method:logout")
-                launch {
-                    async(CommonPool) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Method:logout")
+                GlobalScope.launch {
+                    async(Dispatchers.Default) {
                         return@async lineApiClient.logout()
                     }.await().let {
                         if (it.isSuccess) {
@@ -107,9 +122,9 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
                 }
             }
             "getProfile" -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "Method:getProfile")
-                launch {
-                    async(CommonPool) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Method:getProfile")
+                GlobalScope.launch {
+                    async(Dispatchers.Default) {
                         return@async lineApiClient.profile
                     }.await().let {
 
@@ -133,14 +148,14 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
                 }
             }
             "currentAccessToken" -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "Method:currentAccessToken")
-                launch {
-                    async(CommonPool) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Method:currentAccessToken")
+                GlobalScope.launch {
+                    async(Dispatchers.Default) {
                         return@async lineApiClient.currentAccessToken
                     }.await().let {
                         if (it.isSuccess) {
                             val map = mapOf(
-                                    "accessToken" to it.responseData.accessToken,
+                                    "accessToken" to it.responseData.tokenString,
                                     "expiresIn" to it.responseData.expiresInMillis.toString())
                             result.success(map)
                         } else {
@@ -150,9 +165,9 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
                 }
             }
             "verifyToken" -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "Method:verifyToken")
-                launch {
-                    async(CommonPool) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Method:verifyToken")
+                GlobalScope.launch {
+                    async(Dispatchers.Default) {
                         return@async lineApiClient.verifyToken()
                     }.await().let {
                         if (it.isSuccess) {
@@ -167,14 +182,14 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
                 }
             }
             "refreshToken" -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "Method:refreshToken")
-                launch {
-                    async(CommonPool) {
+                if (BuildConfig.DEBUG) Log.d(TAG, "Method:refreshToken")
+                GlobalScope.launch {
+                    async(Dispatchers.Default) {
                         return@async lineApiClient.refreshAccessToken()
                     }.await().let {
                         if (it.isSuccess) {
                             val map = mapOf(
-                                    "accessToken" to it.responseData.accessToken,
+                                    "accessToken" to it.responseData.tokenString,
                                     "expiresIn" to it.responseData.expiresInMillis.toString())
                             result.success(map)
                         } else {
@@ -191,18 +206,18 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
     }
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
-        if(BuildConfig.DEBUG) Log.d(TAG, "onListen" + events)
+        if (BuildConfig.DEBUG) Log.d(TAG, "onListen$events")
         eventSink = events
     }
 
     override fun onCancel(arguments: Any?) {
-        if(BuildConfig.DEBUG) Log.d(TAG, "onCancel")
+        if (BuildConfig.DEBUG) Log.d(TAG, "onCancel")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if(BuildConfig.DEBUG) Log.d(TAG, "onActivityResult")
+        if (BuildConfig.DEBUG) Log.d(TAG, "onActivityResult")
         if (requestCode != this.requestCode) {
-            if(BuildConfig.DEBUG) Log.d(TAG, "Unsupported Request")
+            if (BuildConfig.DEBUG) Log.d(TAG, "Unsupported Request")
             return false
         }
 
@@ -211,14 +226,17 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, EventCha
         when (result.responseCode) {
 
             LineApiResponseCode.SUCCESS -> {
-                if(BuildConfig.DEBUG) Log.d(TAG, "LINE Login Succeeded")
+                if (BuildConfig.DEBUG) Log.d(TAG, "LINE Login Succeeded")
 
                 val map = mutableMapOf(
                         "userID" to result.lineProfile?.userId,
                         "displayName" to result.lineProfile?.displayName,
-                        "accessToken" to result.lineCredential?.accessToken?.accessToken,
-                        "expiresIn" to result.lineCredential?.accessToken?.expiresInMillis.toString(),
-                        "permissions" to result.lineCredential?.permission.toString()
+                        "accessToken" to result.lineCredential?.accessToken?.tokenString,
+                        "expiresIn" to result.lineCredential?.accessToken?.expiresInMillis.toString(), // Compatibility
+                        "expiresInMillis" to result.lineCredential?.accessToken?.expiresInMillis.toString(),
+                        "estimatedExpirationTimeMillis" to result.lineCredential?.accessToken?.estimatedExpirationTimeMillis.toString(),
+                        "issuedClientTimeMillis" to result.lineCredential?.accessToken?.issuedClientTimeMillis.toString(),
+                        "permissions" to result.lineCredential?.scopes?.map { it.code }?.toList()
                 )
                 if (result.lineProfile?.pictureUrl != null) {
                     map["pictureUrl"] = result.lineProfile?.pictureUrl.toString()
