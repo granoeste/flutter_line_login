@@ -1,3 +1,10 @@
+## 0.2.0
+
+* Line SDK update to v5.0
+* Migration using MethodChannel.invoke
+* A Small code fix
+* For iOS. `s.static_framework = true`
+
 ## 0.1.4
 
 * Fix a login result code on Android

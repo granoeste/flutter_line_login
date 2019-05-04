@@ -162,7 +162,7 @@ The login result is obtained by a callback function. It's same Login.
 ### Logout
 
 Revokes the user access token.
-If access token is null, PlatformException is throwed.
+If access token is null, PlatformException will be thrown.
 
 ```dart
   // Platform messages may fail, so we use a try/catch PlatformException.
@@ -177,7 +177,7 @@ If access token is null, PlatformException is throwed.
 ### Profile
 
 Gets the profile information of the user.
-If access token is null, PlatformException is throwed.
+If access token is null, PlatformException will be thrown.
 
 ```dart
   // Platform messages may fail, so we use a try/catch PlatformException.
@@ -195,7 +195,7 @@ If access token is null, PlatformException is throwed.
 ### Access Token
 
 Gets the access token for the user.
-If access token is null, PlatformException is throwed.
+If access token is null, PlatformException will be thrown.
 
 ```dart
   // Platform messages may fail, so we use a try/catch PlatformException.
@@ -211,7 +211,7 @@ If access token is null, PlatformException is throwed.
 ### Verify token
 
 Checks whether the access token for the user is valid.
-If access token is null, PlatformException is throwed.
+If access token is null, PlatformException is threw.
 
 ```dart
   // Platform messages may fail, so we use a try/catch PlatformException.
@@ -227,7 +227,7 @@ If access token is null, PlatformException is throwed.
 ### Refresh token
 
 Refreshes the access token for the user.
-If access token is null, PlatformException is throwed.
+If access token is null, PlatformException will be thrown.
 
 ```dart
   // Platform messages may fail, so we use a try/catch PlatformException.
@@ -245,6 +245,6 @@ So, I did not create all Naive API calling functions.
 To learn more, you need to look at the [Android SDK reference](https://developers.line.me/en/reference/android-sdk/) and [iOS SDK reference](https://developers.line.me/en/reference/ios-sdk/) of LINE documentation.
 
 
-If you find a bug please register issue or Pull Requeste.
+If you find a bug please register issue or Pull Request.
 
 Thank you and best regards,
