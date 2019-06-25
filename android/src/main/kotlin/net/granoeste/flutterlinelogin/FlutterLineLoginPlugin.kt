@@ -226,6 +226,9 @@ class FlutterLineLoginPlugin(registrar: Registrar) : MethodCallHandler, PluginRe
                         "expiresIn" to result.lineCredential?.accessToken?.expiresInMillis.toString(), // Compatibility
                         "permissions" to result.lineCredential?.scopes?.map { it.code }?.toList()
                 )
+                if (result.lineIdToken?.email != null) {
+                    map["email"] = result.lineIdToken?.email
+                }
                 if (result.lineProfile?.pictureUrl != null) {
                     map["pictureUrl"] = result.lineProfile?.pictureUrl.toString()
                 }
