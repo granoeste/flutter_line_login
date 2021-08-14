@@ -1,3 +1,9 @@
+# DISCONTINUED :wave:
+
+Suggested replacement to [line/flutter\_line\_sdk :arrow_right:](https://github.com/line/flutter_line_sdk/) 
+
+**You will be suggested to consider using the official package.** 
+
 # flutter_line_login
 
 [![pub package](https://img.shields.io/pub/v/flutter_line_login.svg)](https://pub.dartlang.org/packages/flutter_line_login)
