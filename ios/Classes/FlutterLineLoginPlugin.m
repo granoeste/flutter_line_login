@@ -181,6 +181,9 @@
             @"expiresIn": [NSString stringWithFormat:@"%ld", (NSInteger) credential.accessToken.expiresIn * 1000],
             @"permissions": credential.permissions.array,
     } mutableCopy];
+    if (credential.IDToken != nil) {
+        result[@"email"] = credential.IDToken.email;
+    }
     if (profile.pictureURL != nil) {
         result[@"pictureUrl"] = profile.pictureURL.absoluteString;
     }
